@@ -70,7 +70,7 @@ The repository keeps one plugin per directory and releases each plugin separatel
 
 - The directory name must equal `short` in `komari-plugin.json`.
 - `npm run build` builds every plugin and `npm run build -- <short>` builds one, producing `dist/<short>.zip` and `dist/SHA256SUMS`. ZIP names carry no version and timestamps are fixed, so the same source always produces the same package.
-- To release, bump `version` in `komari-plugin.json`, commit, and push a `<short>-v<version>` tag (for example `bark-plus-v1.2.0`). The Release workflow builds only that plugin and attaches only `<short>.zip`.
+- To release, bump `version` in `komari-plugin.json`, commit, and push a `<short>-v<version>` tag (for example `bark-plus-v1.0.0`). The Release workflow builds only that plugin and attaches only `<short>.zip`.
 - **Leave at least 6 hours between releases of different plugins.** The market checks the repository's latest Release only once every 6 hours, so a release that is superseded sooner can be missed. The Release workflow refuses such releases; re-run it once enough time has passed.
 - To list a new plugin, publish its first Release and, while it is still the latest Release, open a [GitHub plugin issue](https://github.com/komari-monitor/plugin-market/issues/new/choose) in the plugin market with the repository URL. Later versions are picked up by the market every 6 hours through automatic PRs.
 - Commit messages use gitmoji + Conventional Commits with the plugin name as scope, for example `✨ feat(bark-plus): 支持多设备推送`.

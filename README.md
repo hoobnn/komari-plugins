@@ -70,7 +70,7 @@ Bark 推送失败：设备密钥不存在。检查密钥是否填错，以及 Ba
 
 - 目录名必须等于 `komari-plugin.json` 里的 `short`。
 - `npm run build` 构建全部插件，`npm run build -- <short>` 只构建一个；产物是 `dist/<short>.zip` 和 `dist/SHA256SUMS`。ZIP 文件名固定、不带版本号，时间戳固定，同样的源码打出同样的包。
-- 发版：改 `komari-plugin.json` 的 `version` 并提交，再推送 `<short>-v<version>` 标签（例如 `bark-plus-v1.2.0`）。Release 工作流只构建这一个插件，Release 里只放 `<short>.zip`。
+- 发版：改 `komari-plugin.json` 的 `version` 并提交，再推送 `<short>-v<version>` 标签（例如 `bark-plus-v1.0.0`）。Release 工作流只构建这一个插件，Release 里只放 `<short>.zip`。
 - **两个插件发版至少间隔 6 小时**。插件市场每 6 小时只检查一次仓库的「最新 Release」，间隔太短，前一个插件的更新会被漏掉。Release 工作流会检查并拦下，等够时间后重跑即可。
 - 新插件上架：先发它的第一个 Release，在它还是最新 Release 时到插件市场提交 [GitHub 插件 Issue](https://github.com/komari-monitor/plugin-market/issues/new/choose)，只需填仓库地址。之后的版本由市场每 6 小时自动拉取并开 PR。
 - 提交信息使用 gitmoji + Conventional Commits，scope 写插件名，例如 `✨ feat(bark-plus): 支持多设备推送`。
