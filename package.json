@@ -1,0 +1,13 @@
+{
+  "name": "komari-plugins",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Komari plugins maintained by hoobnn",
+  "type": "module",
+  "scripts": {
+    "build": "node scripts/build.mjs"
+  },
+  "engines": {
+    "node": ">=20.11"
+  }
+}
