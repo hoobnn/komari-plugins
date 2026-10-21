@@ -1,5 +1,5 @@
 // 把含 komari-plugin.json 的插件目录打包成 Komari 可直接上传的 dist/<short>.zip，并输出 sha256。
-// 用法：node scripts/build.mjs [short ...]，不传参数时构建全部插件。
+// 用法：pnpm build [short ...]，不传参数时构建全部插件。
 // 文件名固定不带版本号：插件市场按上一版的文件名在新 Release 里找更新包。
 // 只校验和打包，不执行插件代码。ZIP 写法参考 Akizon77/komari-notification-plugins（MIT）。
 import { createHash } from "node:crypto";

@@ -3,11 +3,18 @@
   "version": "0.0.0",
   "private": true,
   "description": "Komari plugins maintained by hoobnn",
-  "type": "module",
+  "packageManager": "pnpm@12.14.0",
+  "type": "commonjs",
   "scripts": {
-    "build": "node scripts/build.mjs"
+    "build": "node scripts/build.mjs",
+    "prepare": "husky"
   },
   "engines": {
     "node": ">=20.11"
+  },
+  "devDependencies": {
+    "@commitlint/cli": "^21.2.4",
+    "@commitlint/config-conventional": "^21.2.4",
+    "husky": "^9.1.7"
   }
 }
