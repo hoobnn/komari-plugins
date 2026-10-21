@@ -7,6 +7,7 @@
   "type": "commonjs",
   "scripts": {
     "build": "node scripts/build.mjs",
+    "readme": "node scripts/readme.mjs",
     "prepare": "husky"
   },
   "engines": {

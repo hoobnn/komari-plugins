@@ -79,7 +79,10 @@ for (const dir of selected.length > 0 ? selected : allDirs) {
   if (manifest.short !== dir) throw new Error(`${dir}: manifest short "${manifest.short}" must match the directory name`);
   if (!/^\d+\.\d+\.\d+$/.test(manifest.version || "")) throw new Error(`${dir}: invalid version "${manifest.version}"`);
 
-  const files = (await readdir(sourceDir)).filter((name) => !name.startsWith(".")).sort();
+  // 插件目录里的 README 只给人看，不打进插件包
+  const files = (await readdir(sourceDir))
+    .filter((name) => !name.startsWith(".") && !/^readme(\.[\w-]+)?\.md$/i.test(name))
+    .sort();
   for (const required of [manifest.entry, manifest.icon].filter(Boolean)) {
     if (!files.includes(required)) throw new Error(`${dir}: missing ${required}`);
   }

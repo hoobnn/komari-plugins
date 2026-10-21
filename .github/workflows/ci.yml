@@ -16,5 +16,7 @@ jobs:
           node-version: 22
       - name: Check plugin scripts
         run: for script in */script.js; do node --check "$script"; done
+      - name: Check README plugin tables
+        run: pnpm readme --check
       - name: Build all plugins
         run: pnpm build
