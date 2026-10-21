@@ -1,24 +1,34 @@
+<div align="center">
+
 # komari-plugins
 
-自用的 [Komari](https://github.com/komari-monitor/komari) 插件合集，要求 Komari `>= 1.6.0`。
+[Komari](https://github.com/komari-monitor/komari) 插件合集。
+
+[![CI](https://img.shields.io/github/actions/workflow/status/hoobnn/komari-plugins/ci.yml?branch=main&style=flat-square&label=CI)](https://github.com/hoobnn/komari-plugins/actions/workflows/ci.yml)
+[![Komari](https://img.shields.io/badge/Komari-1.6.0%2B-5B5BD6?style=flat-square)](https://github.com/komari-monitor/komari)
+[![License](https://img.shields.io/badge/license-MIT-blue?style=flat-square)](LICENSE)
+
+**简体中文** · [English](README.en.md)
+
+</div>
 
 ## 插件列表
 
-| 插件 | 渠道 ID | 说明 |
-| --- | --- | --- |
-| [`bark-plus`](#bark-plus) | `bark` | Bark 通知增强版：支持自建服务器 Basic Auth、多设备、分组、重要警告 |
+| 插件 | 渠道 ID | 最新版本 | 说明 |
+| --- | --- | --- | --- |
+| [`bark-plus`](#bark-plus) | `bark` | [![bark-plus](https://img.shields.io/github/v/release/hoobnn/komari-plugins?filter=bark-plus-v*&style=flat-square&label=)](https://github.com/hoobnn/komari-plugins/releases?q=bark-plus) | Bark 通知增强版：支持自建服务器 Basic Auth、多设备、分组、重要警告，报错可读 |
 
 ## 安装
 
-1. 运行 `npm run build`，在 `dist/` 中得到插件 ZIP。
-2. 在 Komari 后台「插件」页面上传 ZIP 并启用。
+1. 在 Komari 后台「插件」页面从插件市场安装，或从 [Releases](https://github.com/hoobnn/komari-plugins/releases) 下载 `<插件名>.zip` 后上传。
+2. 启用插件。
 3. 在「通知」设置中选择对应渠道并填写配置。
 
-服务器访问不了 GitHub 时，插件市场装不上，直接上传 ZIP 即可。
+服务器访问不了 GitHub 时插件市场装不上，在本机下载 ZIP 再上传即可。
 
 ## bark-plus
 
-官方 [Bark 插件](https://github.com/Akizon77/komari-notification-plugins) 只发送 `device_key`，接开了 Basic Auth 的自建 bark-server 会被拒（HTTP 418）。本插件在官方插件的基础上增加：
+官方 [Bark 插件](https://github.com/Akizon77/komari-notification-plugins) 只发送 `device_key`，接开了 Basic Auth 的自建 bark-server 会被拒（HTTP 418），失败时也只报 `bark API returned non-OK status`。bark-plus 在它的基础上增加：
 
 | 配置项 | 说明 |
 | --- | --- |
@@ -28,12 +38,14 @@
 | 重要警告音量 | `critical` 级别的铃声音量，0–10 |
 | 分组 / 铃声 / 图标 / 点击跳转链接 / 保存到历史记录 | 对应 Bark 的 `group` / `sound` / `icon` / `url` / `isArchive` |
 
+**可直接替换官方 Bark 插件**：渠道 ID 同为 `bark`，`server_url`、`device_key`、`icon`、`level` 字段名不变，旧版内置 Bark 渠道和官方插件保存的配置可以直接读取。两者不能同时启用，后启用的会注册失败。
+
 ### 报错说明
 
-推送失败时，报错按「原因。建议（上游：原始返回）」的格式显示在 Komari 里，例如：
+推送失败时，报错按「中文原因。建议 / English reason. hint（上游 / upstream: 原始返回）」显示在 Komari 里，例如：
 
 ```text
-Bark 推送失败：设备密钥不存在。检查密钥是否填错，以及 Bark App 里添加的服务器是不是这一台（上游：HTTP 400 failed to get device token: key not found）
+Bark 推送失败：设备密钥不存在。检查密钥是否填错，以及 Bark App 里添加的服务器是不是这一台 / Bark push failed: the device key does not exist. Check the key and that the Bark app is registered with this server（上游 / upstream: HTTP 400 failed to get device token: key not found）
 ```
 
 | 上游返回（bark-server v2） | 显示的原因 |
@@ -50,16 +62,19 @@ Bark 推送失败：设备密钥不存在。检查密钥是否填错，以及 Ba
 | `push failed:` 网络错误 | bark-server 连不上 APNs |
 | 反代 5xx、非 JSON 响应、连接失败 | 服务器不可用 / 地址不对 / 连不上 |
 
-多设备推送时，bark-server 外层总是返回成功，插件会逐台检查结果，有任何一台失败都会报错，并列出失败的设备（密钥只显示前 4 位）。
+多设备推送时，bark-server 外层总是返回成功，bark-plus 会逐台检查结果，任何一台失败都会报错并列出失败的设备（密钥只显示前 4 位）。
 
-**与官方 Bark 插件互斥**：两者都注册渠道 ID `bark`，同时启用时后启用的会失败。沿用同一个 ID，是为了直接读取旧版内置 Bark 渠道保存的配置（`server_url`、`device_key`、`icon`、`level` 字段名保持不变）。
+## 开发与发版
 
-## 开发
+仓库按「一个目录一个插件、每个插件单独发版」维护，以适配 [Komari 插件市场](https://github.com/komari-monitor/plugin-market) 的自动收录和更新规则：
 
-- 每个插件一个目录，目录名必须等于 `komari-plugin.json` 里的 `short`。
-- `npm run build` 会校验清单，把每个插件目录打包成 `dist/<short>-<version>.zip`，并生成 `dist/SHA256SUMS`。构建只打包，不执行插件代码。
-- 提交信息使用 gitmoji + Conventional Commits，例如 `✨ feat(bark-plus): 支持多设备推送`。
+- 目录名必须等于 `komari-plugin.json` 里的 `short`。
+- `npm run build` 构建全部插件，`npm run build -- <short>` 只构建一个；产物是 `dist/<short>.zip` 和 `dist/SHA256SUMS`。ZIP 文件名固定、不带版本号，时间戳固定，同样的源码打出同样的包。
+- 发版：改 `komari-plugin.json` 的 `version` 并提交，再推送 `<short>-v<version>` 标签（例如 `bark-plus-v1.2.0`）。Release 工作流只构建这一个插件，Release 里只放 `<short>.zip`。
+- **两个插件发版至少间隔 6 小时**。插件市场每 6 小时只检查一次仓库的「最新 Release」，间隔太短，前一个插件的更新会被漏掉。Release 工作流会检查并拦下，等够时间后重跑即可。
+- 新插件上架：先发它的第一个 Release，在它还是最新 Release 时到插件市场提交 [GitHub 插件 Issue](https://github.com/komari-monitor/plugin-market/issues/new/choose)，只需填仓库地址。之后的版本由市场每 6 小时自动拉取并开 PR。
+- 提交信息使用 gitmoji + Conventional Commits，scope 写插件名，例如 `✨ feat(bark-plus): 支持多设备推送`。
 
 ## 许可证
 
-[MIT](./LICENSE)。`scripts/build.mjs` 的 ZIP 写法和 `bark-plus/icon.webp` 来自 [Akizon77/komari-notification-plugins](https://github.com/Akizon77/komari-notification-plugins)（MIT）。
+[MIT](LICENSE)。`scripts/build.mjs` 的 ZIP 写法和 `bark-plus/icon.webp` 来自 [Akizon77/komari-notification-plugins](https://github.com/Akizon77/komari-notification-plugins)（MIT）。
