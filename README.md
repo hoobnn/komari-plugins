@@ -28,6 +28,30 @@
 | 重要警告音量 | `critical` 级别的铃声音量，0–10 |
 | 分组 / 铃声 / 图标 / 点击跳转链接 / 保存到历史记录 | 对应 Bark 的 `group` / `sound` / `icon` / `url` / `isArchive` |
 
+### 报错说明
+
+推送失败时，报错按「原因。建议（上游：原始返回）」的格式显示在 Komari 里，例如：
+
+```text
+Bark 推送失败：设备密钥不存在。检查密钥是否填错，以及 Bark App 里添加的服务器是不是这一台（上游：HTTP 400 failed to get device token: key not found）
+```
+
+| 上游返回（bark-server v2） | 显示的原因 |
+| --- | --- |
+| HTTP 418 `I'm a teapot` | Basic Auth 鉴权失败（bark-server 先鉴权，未鉴权时路径写错也是 418） |
+| HTTP 404 | 服务器上没有 `/push` 接口 |
+| `failed to get device token: key not found` | 设备密钥不存在 |
+| `failed to get device token: …device token…` | 设备注册信息已失效 |
+| `batch push count exceeds the maximum limit: N` | 设备数量超过服务器上限 |
+| `request bind failed` 等 | 服务器不接受请求格式 |
+| `push failed: BadDeviceToken` / `Unregistered` | 设备已失效，需要在 App 里重新注册 |
+| `push failed: TooManyRequests` / `PayloadTooLarge` | 被 APNs 限流 / 内容超过 4 KB |
+| `push failed: …ProviderToken` / 证书类 | bark-server 的 APNs 凭据无效 |
+| `push failed:` 网络错误 | bark-server 连不上 APNs |
+| 反代 5xx、非 JSON 响应、连接失败 | 服务器不可用 / 地址不对 / 连不上 |
+
+多设备推送时，bark-server 外层总是返回成功，插件会逐台检查结果，有任何一台失败都会报错，并列出失败的设备（密钥只显示前 4 位）。
+
 **与官方 Bark 插件互斥**：两者都注册渠道 ID `bark`，同时启用时后启用的会失败。沿用同一个 ID，是为了直接读取旧版内置 Bark 渠道保存的配置（`server_url`、`device_key`、`icon`、`level` 字段名保持不变）。
 
 ## 开发
