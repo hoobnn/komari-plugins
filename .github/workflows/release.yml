@@ -1,0 +1,77 @@
+name: Release
+
+# 每个插件单独发版：推送 <short>-v<version> 标签，例如 bark-plus-v1.2.0。
+# Release 只放 <short>.zip，插件市场的自动提交要求最新 Release 里只有一个插件包。
+on:
+  push:
+    tags: ["*-v*.*.*"]
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ github.token }}
+      TAG: ${{ github.ref_name }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Resolve plugin from tag
+        run: |
+          short="${TAG%-v*}"
+          version="${TAG##*-v}"
+          if [ ! -f "$short/komari-plugin.json" ]; then
+            echo "::error::标签 $TAG 对应的插件目录 $short 不存在"
+            exit 1
+          fi
+          manifest_version="$(node -p "require('./$short/komari-plugin.json').version")"
+          if [ "$manifest_version" != "$version" ]; then
+            echo "::error::标签版本 $version 与 $short/komari-plugin.json 的 version $manifest_version 不一致"
+            exit 1
+          fi
+          echo "SHORT=$short" >> "$GITHUB_ENV"
+          echo "VERSION=$version" >> "$GITHUB_ENV"
+
+      # 插件市场每 6 小时只看一次仓库的「最新 Release」。6 小时内先后发两个插件，
+      # 前一个可能还没被市场看到就不再是最新的了，会漏掉这次更新。等够时间后重跑本任务即可。
+      - name: Check the plugin market polling window
+        run: |
+          latest="$(gh release view --json tagName,publishedAt --jq '.tagName + " " + .publishedAt' 2>/dev/null || true)"
+          [ -z "$latest" ] && exit 0
+          latest_tag="${latest%% *}"
+          latest_short="${latest_tag%-v*}"
+          age=$(( $(date +%s) - $(date -d "${latest#* }" +%s) ))
+          if [ "$latest_short" != "$SHORT" ] && [ "$age" -lt 21600 ]; then
+            echo "::error::$latest_tag 发布于 $((age / 60)) 分钟前，插件市场可能还没拉取。请在它发布满 6 小时后重跑本任务"
+            exit 1
+          fi
+
+      - name: Build
+        run: node scripts/build.mjs "$SHORT"
+
+      - name: Write release notes
+        run: |
+          previous="$(git tag --list "$SHORT-v*" --sort=-v:refname | grep -vx "$TAG" | head -n 1 || true)"
+          {
+            echo "## $SHORT v$VERSION"
+            echo
+            if [ -n "$previous" ]; then
+              git log --format='- %s' "$previous..$TAG" -- "$SHORT"
+            else
+              git log --format='- %s' "$TAG" -- "$SHORT"
+            fi
+            echo
+            echo '```text'
+            cat dist/SHA256SUMS
+            echo '```'
+          } > release-notes.md
+
+      - name: Publish release
+        run: gh release create "$TAG" "dist/$SHORT.zip" --title "$SHORT v$VERSION" --notes-file release-notes.md

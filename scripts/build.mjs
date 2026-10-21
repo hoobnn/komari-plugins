@@ -1,4 +1,6 @@
-// 把每个含 komari-plugin.json 的目录打包成 Komari 可直接上传的 ZIP，并输出 sha256。
+// 把含 komari-plugin.json 的插件目录打包成 Komari 可直接上传的 dist/<short>.zip，并输出 sha256。
+// 用法：node scripts/build.mjs [short ...]，不传参数时构建全部插件。
+// 文件名固定不带版本号：插件市场按上一版的文件名在新 Release 里找更新包。
 // 只校验和打包，不执行插件代码。ZIP 写法参考 Akizon77/komari-notification-plugins（MIT）。
 import { createHash } from "node:crypto";
 import { mkdir, readFile, readdir, rm, stat, writeFile } from "node:fs/promises";
@@ -61,11 +63,17 @@ async function pluginDirs() {
   return dirs.sort();
 }
 
+const allDirs = await pluginDirs();
+const selected = process.argv.slice(2);
+for (const name of selected) {
+  if (!allDirs.includes(name)) throw new Error(`unknown plugin "${name}", available: ${allDirs.join(", ")}`);
+}
+
 await rm(dist, { recursive: true, force: true });
 await mkdir(dist, { recursive: true });
 
 const checksums = [];
-for (const dir of await pluginDirs()) {
+for (const dir of selected.length > 0 ? selected : allDirs) {
   const sourceDir = join(root, dir);
   const manifest = JSON.parse(await readFile(join(sourceDir, "komari-plugin.json"), "utf8"));
   if (manifest.short !== dir) throw new Error(`${dir}: manifest short "${manifest.short}" must match the directory name`);
@@ -78,11 +86,11 @@ for (const dir of await pluginDirs()) {
 
   const entries = await Promise.all(files.map(async (name) => ({ name, data: await readFile(join(sourceDir, name)) })));
   const zip = createZip(entries);
-  const zipName = `${dir}-${manifest.version}.zip`;
+  const zipName = `${dir}.zip`;
   await writeFile(join(dist, zipName), zip);
   const sha256 = createHash("sha256").update(zip).digest("hex");
   checksums.push(`${sha256}  ${zipName}`);
-  console.log(`${zipName}  ${sha256}`);
+  console.log(`${zipName}  ${manifest.version}  ${sha256}`);
 }
 
 await writeFile(join(dist, "SHA256SUMS"), checksums.join("\n") + "\n");
