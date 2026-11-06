@@ -2,7 +2,7 @@
 
 [简体中文](README.md) · **English** · [Back to plugin list](../README.en.md)
 
-Sends Komari notifications through [Bark](https://github.com/Finb/Bark). A drop-in replacement for the official [Bark plugin](https://github.com/Akizon77/komari-notification-plugins) that adds what it lacks:
+bark-plus is a free, open-source Bark notification plugin for [Komari](https://github.com/komari-monitor/komari). It pushes offline and alert notifications to iPhone through [Bark](https://github.com/Finb/Bark), using the official server or a self-hosted bark-server. A drop-in replacement for the official [Bark plugin](https://github.com/Akizon77/komari-notification-plugins) that adds what it lacks:
 
 - **Basic Auth for self-hosted servers**: the official plugin only sends `device_key`, so a bark-server with authentication rejects it (HTTP 418).
 - **Multiple devices**: comma-separated keys go through bark-server's batch push, with every device's result checked.
@@ -60,6 +60,17 @@ Bark 推送失败：设备密钥不存在。检查密钥是否填错，以及 Ba
 | Proxy 5xx, non-JSON response, connection failure | Server unavailable / wrong URL / unreachable |
 
 For batch pushes bark-server always reports overall success, so the plugin checks every device and fails if any of them failed, listing the failed devices (only the first 4 characters of each key).
+
+## FAQ
+
+**How do I enable it in Komari?**
+Install and enable the plugin on the Plugins page, set the notification channel to `bark`, and enter your device key.
+
+**Official `api.day.app` or a self-hosted server?**
+Both work. With the official server only the device key is needed; if your self-hosted bark-server has authentication enabled, also enter the Basic Auth username and password.
+
+**I get no push. What now?**
+Read the error shown in Komari and match it against the Errors table above. The usual causes are a wrong device key, or the Bark app being registered with a different server.
 
 ## Credits
 

@@ -2,7 +2,7 @@
 
 # komari-plugins
 
-[Komari](https://github.com/komari-monitor/komari) 插件合集。
+[Komari](https://github.com/komari-monitor/komari) 探针 / 服务器监控面板的第三方插件合集，免费开源。目前包含 `bark-plus`：把 Komari 的离线、告警通知通过 Bark 推送到 iPhone，支持自建 bark-server 的 Basic Auth、多设备和重要警告。
 
 [![CI](https://img.shields.io/github/actions/workflow/status/hoobnn/komari-plugins/ci.yml?branch=main&style=flat-square&label=CI)](https://github.com/hoobnn/komari-plugins/actions/workflows/ci.yml)
 [![Komari](https://img.shields.io/badge/Komari-1.6.0%2B-5B5BD6?style=flat-square)](https://github.com/komari-monitor/komari)
@@ -28,6 +28,20 @@
 2. 启用插件，按插件说明完成配置。
 
 服务器访问不了 GitHub 时插件市场装不上，在本机下载 ZIP 再上传即可。
+
+## 常见问题
+
+**这些插件怎么安装？**
+在 Komari 后台「插件」页面从插件市场安装，或下载 Release 里的 `<插件名>.zip` 上传，见上方「安装」。
+
+**要求什么版本的 Komari？**
+各插件的最低版本见上表「Komari」一列，目前 `bark-plus` 要求 `>=1.6.0`。
+
+**bark-plus 和官方 Bark 插件有什么区别？**
+bark-plus 可以替换官方 [Bark 插件](https://github.com/Akizon77/komari-notification-plugins)，补上自建 bark-server 的 Basic Auth、多设备推送、重要警告和可读的报错。两者的渠道 ID 同为 `bark`，不能同时启用，详见 [bark-plus 说明](bark-plus/README.md#从官方-bark-插件迁移)。
+
+**这是 Komari 官方项目吗？**
+不是。本仓库是个人维护的第三方插件，与 Komari 项目没有隶属关系。
 
 ## 开发
 

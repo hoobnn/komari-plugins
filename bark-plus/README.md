@@ -2,7 +2,7 @@
 
 **简体中文** · [English](README.en.md) · [返回插件列表](../README.md)
 
-通过 [Bark](https://github.com/Finb/Bark) 推送 Komari 通知。可直接替换官方 [Bark 插件](https://github.com/Akizon77/komari-notification-plugins)，并补上它缺少的能力：
+bark-plus 是 [Komari](https://github.com/komari-monitor/komari) 的 Bark 通知插件（免费开源），把离线、告警等通知通过 [Bark](https://github.com/Finb/Bark) 推送到 iPhone，支持官方服务器和自建 bark-server。可直接替换官方 [Bark 插件](https://github.com/Akizon77/komari-notification-plugins)，并补上它缺少的能力：
 
 - **自建服务器的 Basic Auth**：官方插件只发送 `device_key`，接开了鉴权的 bark-server 会被拒（HTTP 418）。
 - **多设备推送**：密钥用英文逗号分隔，走 bark-server 的批量推送，并逐台检查结果。
@@ -60,6 +60,17 @@ Bark 推送失败：设备密钥不存在。检查密钥是否填错，以及 Ba
 | 反代 5xx、非 JSON 响应、连接失败 | 服务器不可用 / 地址不对 / 连不上 |
 
 多设备推送时，bark-server 外层总是返回成功，插件会逐台检查结果，任何一台失败都会报错并列出失败的设备（密钥只显示前 4 位）。
+
+## 常见问题
+
+**Komari 里怎么启用？**
+在「插件」页面安装并启用本插件后，把通知渠道选为 `bark`，填写设备密钥即可。
+
+**用官方 `api.day.app` 还是自建服务器？**
+两者都支持。用官方服务器只需填设备密钥；自建 bark-server 开了鉴权时，再填 Basic Auth 用户名和密码。
+
+**收不到推送怎么办？**
+先看 Komari 里的报错，按上方「报错说明」对照处理；常见原因是设备密钥填错，或 Bark App 里添加的不是这台服务器。
 
 ## 致谢
 
